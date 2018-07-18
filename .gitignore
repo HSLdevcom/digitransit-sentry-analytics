@@ -1,0 +1,27 @@
+*.py[co]
+*~
+*.json
+*.csv
+*.html
+*.txt
+*.dat
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+lib
+var
+sdist
+develop-eggs
+py3env
+.vscode
+.installed.cfg
+
+# Installer logs
+pip-log.txt
+
