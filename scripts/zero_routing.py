@@ -90,7 +90,7 @@ def clusterEndpoints(orig_endpoints, name_prefix, eps=2500, min_samples=2, retur
 last_url = None
 if os.environ.get('DISABLE_CACHE') != 'true' or not os.path.exists('../results.dat'):
     events = []
-    url = os.environ['SENTRY_URL']
+    url = '%sissues/%s/events/' % (os.environ['SENTRY_BASE_URL'], os.environ['ZERO_ROUTES_ID'])
     for i in range(100):
         print(i,url,)
         r = requests.get(url,headers={'Authorization':'Bearer %s' % os.environ['SENTRY_TOKEN']})

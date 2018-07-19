@@ -34,7 +34,7 @@ exclude_sites = ('localhost','dev.','127.0.0.1','beta.','foli.fi','pilot1', 'tur
 last_url = None
 if not os.path.exists('results_defective.dat'):
 	events = []
-	url = os.environ['SENTRY_URL']
+	url = os.environ['SENTRY_BASE_URL'] # TODO add env variable for the issue number
 	for i in xrange(100):
 		print i,url,
 		r = requests.get(url,headers={'Authorization':'Bearer %s' % os.environ['SENTRY_TOKEN']})
