@@ -3,6 +3,7 @@
 *.json
 *.csv
 *.html
+!reports/dummy.html
 *.txt
 *.dat
 
