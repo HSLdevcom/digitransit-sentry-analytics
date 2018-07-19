@@ -88,7 +88,7 @@ def clusterEndpoints(orig_endpoints, name_prefix, eps=2500, min_samples=2, retur
     return (endpoints, invalid_coordinates)
 
 last_url = None
-if not os.path.exists('results.dat'):
+if os.environ.get('DISABLE_CACHE') != 'true' or not os.path.exists('../results.dat'):
     events = []
     url = os.environ['SENTRY_URL']
     for i in range(100):
@@ -136,23 +136,23 @@ if not os.path.exists('results.dat'):
 
         last_url = url
 
-    f = open('results.dat','wb')
-    pickle.dump(events,f,-1)
-    f.close()
+    if os.environ.get('DISABLE_CACHE') != 'true':
+        f = open('../results.dat','wb')
+        pickle.dump(events,f,-1)
+        f.close()
 else:
-    f = open('results.dat','rb')
+    f = open('../results.dat','rb')
     events = pickle.load(f)
     f.close()
 
 
-
-of = open('report.html','w+')
+of = open('../reports/report.html','w+')
 of.write('<html><head><link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">')
 of.write('<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">')
 of.write('</script><script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script></head>')
 of.write('<body><style>td,th { font-size: 12px; font-family: arial;} .dataTables_wrapper { margin-bottom: 20px !important; }</style>')
 of.write('<script>$(document).ready( function () { $(\'#datatable\').DataTable(); $(\'#conftable\').DataTable(); $(\'#clustertable\').DataTable();} );</script>')
-of.write('<h2>Error events after filtering</h2>')
+of.write('<h2>Error events after filtering <a href=filtered_coordinates.csv>CSV coordinates</a></h2>')
 of.write('<table border="1" id="datatable">')
 of.write('<thead><tr><th>router</th><th>time</th><th>created</th><th>from</th><th>to</th><th>configuration index</th><th>link</th></tr></thead>\n<tbody>')
 i = 0
@@ -281,7 +281,7 @@ combined_clusters = hsl_clustered_origins + hsl_clustered_destinations + waltti_
 combined_invalid_coordinates = hsl_origins_invalid + hsl_destinations_invalid + waltti_origins_invalid \
     + waltti_destinations_invalid + finland_origins_invalid + finland_destinations_invalid
 
-of.write('<h2>Coordinate clusters and outliers</h2>')
+of.write('<h2>Coordinate clusters and outliers <a href=clusters_and_outliers.csv>CSV coordinates</a></h2>')
 of.write('<table border="1" id="clustertable">')
 of.write('<thead><tr><th>name</th><th>hits</th><th>lat</th><th>lon</th></thead>')
 of.write('<tbody>')
@@ -307,7 +307,7 @@ of.close()
 
 print('report.html updated')
 
-f = open('clusters_and_outliers.csv', 'wb')
+f = open('../reports/clusters_and_outliers.csv', 'wb')
 w = unicodecsv.writer(f, encoding='utf-8')
 w.writerow(('name', 'hits', 'lon', 'lat'))
 
@@ -317,7 +317,7 @@ for cluster in combined_clusters:
 f.close()
 print('clusters_and_outliers.csv updated')
 
-f = open('filtered_coordinates.csv', 'wb')
+f = open('../reports/filtered_coordinates.csv', 'wb')
 w = unicodecsv.writer(f, encoding='utf-8')
 w.writerow(('name', 'hits', 'lon', 'lat'))
 i = 0
