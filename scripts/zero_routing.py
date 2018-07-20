@@ -88,10 +88,14 @@ def clusterEndpoints(orig_endpoints, name_prefix, eps=2500, min_samples=2, retur
     return (endpoints, invalid_coordinates)
 
 last_url = None
-if os.environ.get('DISABLE_CACHE') != 'true' or not os.path.exists('../results.dat'):
+if os.environ.get('DISABLE_CACHE') != 'true' and os.path.exists('../results.dat'):
+    f = open('../results.dat','rb')
+    events = pickle.load(f)
+    f.close()
+else:
     events = []
     url = '%sissues/%s/events/' % (os.environ['SENTRY_BASE_URL'], os.environ['ZERO_ROUTES_ID'])
-    for i in range(100):
+    for i in range(40):
         print(i,url,)
         r = requests.get(url,headers={'Authorization':'Bearer %s' % os.environ['SENTRY_TOKEN']})
 
@@ -140,10 +144,6 @@ if os.environ.get('DISABLE_CACHE') != 'true' or not os.path.exists('../results.d
         f = open('../results.dat','wb')
         pickle.dump(events,f,-1)
         f.close()
-else:
-    f = open('../results.dat','rb')
-    events = pickle.load(f)
-    f.close()
 
 
 of = open('../reports/report.html','w+')
