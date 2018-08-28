@@ -12,7 +12,7 @@ Sentry issue filtering and processing. Python scripts are designed to be run on 
   * ZERO_ROUTES_ID - mandatory for zero_routing.py script, issue ID
   * DISABLE_CACHE - optional, if true, no caching of fetched events
 
-As of now, this project can only be used for processing Zero routes found routing issue.
+As of now, this project can only be used for processing *Zero routes found* routing issue.
 This project contains zero_routing.py script that fetches events related to that issue,
 filters out events with known issues, and generates a HTML report and CSV files from those events.
 
