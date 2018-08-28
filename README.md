@@ -7,7 +7,7 @@ Sentry issue filtering and processing. Python scripts are designed to be run on 
 ## Basic usage
 
 * Environmental variables
-  * SENTRY_BASE_URL - mandatory, defines base url for the sentry API that ends with /api/<api version>/
+  * SENTRY_BASE_URL - mandatory, defines base url for the sentry API that ends with /api/0/
   * SENTRY_TOKEN - mandatory, authentication token
   * ZERO_ROUTES_ID - mandatory for zero_routing.py script, issue ID
   * DISABLE_CACHE - optional, if true, no caching of fetched events
