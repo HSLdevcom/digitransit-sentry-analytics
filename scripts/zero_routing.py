@@ -103,15 +103,15 @@ else:
         data = r.json()
         for e in data:
             ctx = e['context']
-
             eventdt = datetime.datetime.strptime(e['dateCreated'],'%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=tz.tzutc()).astimezone(tz=None)
             searchdt = datetime.datetime.fromtimestamp(float(ctx['unixTime'])/1000).replace(tzinfo=tz.gettz('Europe/Helsinki'))
+            zones = ctx['allowedZones'] if 'allowedZones' in ctx else 'All zones allowed'
             from_coordinates = tuple(map(lambda x: None if x == 'null' or x == '' else float(x), ctx['from'][25:][:-1].split(',')))
             to_coordinates = tuple(map(lambda x: None if x == 'null' or x == '' else float(x), ctx['to'][25:][:-1].split(',')))
             events.append({
                 'created': eventdt,
                 'time': searchdt,
-                'zones': ctx['zoneids'],
+                'zones': zones,
                 'modes': ctx['modes'][14:][:-1].replace(" ", "").split(','),
                 'from': from_coordinates,
                 'to': to_coordinates,
