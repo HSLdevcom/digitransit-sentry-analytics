@@ -94,7 +94,7 @@ if os.environ.get('DISABLE_CACHE') != 'true' and os.path.exists('../results.dat'
     f.close()
 else:
     events = []
-    url = '%sissues/%s/events/' % (os.environ['SENTRY_BASE_URL'], os.environ['ZERO_ROUTES_ID'])
+    url = '%sissues/%s/events/?full=true' % (os.environ['SENTRY_BASE_URL'], os.environ['ZERO_ROUTES_ID'])
     for i in range(40):
         print(i,url,)
         r = requests.get(url,headers={'Authorization':'Bearer %s' % os.environ['SENTRY_TOKEN']})
