@@ -103,6 +103,8 @@ else:
         data = r.json()
         for e in data:
             ctx = e['context']
+            if 'Filtered' in ctx['from'] or 'Filtered' in ctx['to']:
+                continue
             eventdt = datetime.datetime.strptime(e['dateCreated'],'%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=tz.tzutc()).astimezone(tz=None)
             searchdt = datetime.datetime.fromtimestamp(float(ctx['unixTime'])/1000).replace(tzinfo=tz.gettz('Europe/Helsinki'))
             zones = ctx['allowedZones'] if 'allowedZones' in ctx else 'All zones allowed'
