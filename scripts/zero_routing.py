@@ -161,8 +161,9 @@ i = 0
 fromto_closeby = 0
 too_old_time = 0
 fromto_null = 0
-from_null = 0
-to_null = 0
+ticket_restrictions = 0
+limited_modes = 0
+faulty_queries = 0
 
 configurations = {}
 
@@ -175,23 +176,19 @@ finland_destinations = {}
 
 for e in events:
 
-    if e['from'][0] is None and e['to'][0] is None:
-        fromto_null += 1
-        continue
-    elif e['from'][0] is None:
-        from_null += 1
-        continue
-    elif e['to'][0] is None:
-        to_null += 1
-        continue
-
     known_error = False
-    utm_from = utm.from_latlon(e['from'][0], e['from'][1], 35)
-    utm_to = utm.from_latlon(e['to'][0], e['to'][1], 35)
-    # Filter out errors where from and to differ by at most by roughly 30 meters
-    if abs(utm_from[0] - utm_to[0]) + abs(utm_from[1] - utm_to[1]) < 30:
-        fromto_closeby += 1
+
+    if e['from'][0] is None or e['to'][0] is None:
+        fromto_null += 1
         known_error = True
+
+    if not known_error:
+        utm_from = utm.from_latlon(e['from'][0], e['from'][1], 35)
+        utm_to = utm.from_latlon(e['to'][0], e['to'][1], 35)
+        # Filter out errors where from and to differ by at most by roughly 30 meters
+        if abs(utm_from[0] - utm_to[0]) + abs(utm_from[1] - utm_to[1]) < 30:
+            fromto_closeby += 1
+            known_error = True
 
     # Filter out errors where user searches 1 day in the past from when error was generated
     if e['time']-e['created'] < datetime.timedelta(days=-1):
@@ -200,13 +197,16 @@ for e in events:
 
     # Filter out errors when user has ticket restrictions
     if e['zones'] != 'All zones allowed':
-        continue
+        ticket_restrictions += 1
+        known_error = True
 
-    # Filter out errors when bicycle, bus or tram is not selected as available mode
-    if 'BICYCLE' not in e['modes'] and 'BUS' not in e['modes'] and 'TRAM' not in e['modes']:
-        continue
+    # Filter out errors when public transportation modes are included but don't include BUS
+    if len(e['modes']) > 1 and 'BUS' not in e['modes']:
+        limited_modes += 1
+        known_error = True
 
     if known_error:
+        faulty_queries += 1
         continue
 
     link = ''
@@ -295,13 +295,15 @@ of.write('<h2>Issue types</h2>')
 of.write('<table border="1">')
 of.write('<thead><tr><th>issue type</th><th>count</th></thead>')
 of.write('<tbody>')
-of.write('<tr><td>From and to are null</td><td>%d</td></tr>' %fromto_null)
-of.write('<tr><td>From is null</td><td>%d</td></tr>' %from_null)
-of.write('<tr><td>To is null</td><td>%d</td></tr>' %to_null)
+of.write('<tr><td>From or to is null</td><td>%d</td></tr>' %fromto_null)
 of.write('<tr><td>From and to are really next to each other</td><td>%d</td></tr>' %fromto_closeby)
 of.write('<tr><td>Coordinates are far away from finland</td><td>%d</td></tr>' %combined_invalid_coordinates)
 of.write('<tr><td>Search time is too much in the past</td><td>%d</td></tr>' %too_old_time)
+of.write('<tr><td>Ticket type limitations</td><td>%d</td></tr>' %ticket_restrictions)
+of.write('<tr><td>Traverse mode limitations</td><td>%d</td></tr>' %limited_modes)
+of.write('<tr><td>Issues with at least one known cause</td><td>%d</td></tr>' %faulty_queries)
 of.write('<tr><td>Unknown errors (these are included in the tables above)</td><td>%d</td></tr>' %i)
+of.write('<tr><td>Total errors</td><td>%d</td></tr>' %len(events))
 
 of.write('</tbody></table></body></html>')
 
