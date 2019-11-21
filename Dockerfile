@@ -9,10 +9,12 @@ WORKDIR /opt/sentry-analytics
 RUN mkdir -p reports scripts $INSTALL_DIR /opt/nginx/www /etc/apache2
 
 RUN apt-get update && apt-get install -y python3 python3-pip apache2-utils && \
-    pip3 install requests python-dateutil unicodecsv numpy utm sklearn scipy && \
-    apt-get remove -y python3-pip && rm -rf /var/lib/apt/lists/*
+    pip3 install requests python-dateutil unicodecsv numpy utm sklearn scipy shapely && \
+    apt-get remove -y python3-pip && apt autoremove && rm -rf /var/lib/apt/lists/*
 
 ADD scripts /opt/sentry-analytics/scripts
+
+Add data /opt/sentry-analytics/data
 
 ADD nginx.conf /etc/nginx/
 

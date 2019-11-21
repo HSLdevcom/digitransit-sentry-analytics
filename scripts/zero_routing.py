@@ -9,6 +9,8 @@ import random
 import unicodecsv
 import numpy as np
 import utm
+import json
+from shapely.geometry import shape, Point
 from sklearn.cluster import DBSCAN
 from urllib.parse import urlparse, parse_qs
 
@@ -61,13 +63,30 @@ def clusterEndpoints(orig_endpoints, name_prefix, eps=2500, min_samples=2, retur
     outliers = next(clusters)
 
     endpoints = []
+
+    router_name = name_prefix.split('_')[0]
+    with open('../data/%s.geojson' % router_name) as f:
+        area_geojson = json.load(f)
+
+    polygons = [x.buffer(0) for x in shape(area_geojson).buffer(0).geoms]
+
     if return_outliers:
         for o in outliers:
             if np.isnan(o[0]):
                 continue
             try:
                 lat, lon = utm.to_latlon(o[0], o[1], 35, 'N')
-                endpoints.append({'name': '%s_outlier_%d' %  (name_prefix, len(endpoints)), 'lon': lon, 'lat': lat,'hits':o[2]})
+                point = Point(lat, lon)
+
+                point_in_polygon = False
+                for polygon in polygons:
+                    if polygon.contains(point):
+                        endpoints.append({'name': '%s_outlier_%d' %  (name_prefix, len(endpoints)), 'lon': lon, 'lat': lat,'hits':o[2]})
+                        point_in_polygon = True
+                        break
+
+                if not point_in_polygon:
+                    invalid_coordinates += 1
             except utm.error.OutOfRangeError:
                 invalid_coordinates += 1
 
@@ -80,8 +99,17 @@ def clusterEndpoints(orig_endpoints, name_prefix, eps=2500, min_samples=2, retur
             continue
         try:
             lat, lon = utm.to_latlon(cp[0], cp[1], 35, 'N')
+            point = Point(lat, lon)
 
-            endpoints.append({'name': '%s_cluster_%d' % (name_prefix, len(endpoints)), 'lon': lon, 'lat': lat,'hits':hitsum})
+            point_in_polygon = False
+            for polygon in polygons:
+                if polygon.contains(point):
+                    endpoints.append({'name': '%s_cluster_%d' % (name_prefix, len(endpoints)), 'lon': lon, 'lat': lat,'hits':hitsum})
+                    point_in_polygon = True
+                    break
+
+            if not point_in_polygon:
+                invalid_coordinates += 1
         except utm.error.OutOfRangeError:
                 invalid_coordinates += 1
 
