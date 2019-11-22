@@ -10,6 +10,7 @@ import unicodecsv
 import numpy as np
 import utm
 import json
+import math
 from shapely.geometry import shape, GeometryCollection, Point
 from sklearn.cluster import DBSCAN
 from urllib.parse import urlparse, parse_qs
@@ -137,7 +138,8 @@ if os.environ.get('DISABLE_CACHE') != 'true' and os.path.exists('../results.dat'
 else:
     events = []
     url = '%sissues/%s/events/?full=true' % (os.environ['SENTRY_BASE_URL'], os.environ['ZERO_ROUTES_ID'])
-    for i in range(40):
+    search_pages = math.ceil(int(os.environ.get('ENTRIES', 4000)) / 100)
+    for i in range(search_pages):
         print(i,url,)
         r = requests.get(url,headers={'Authorization':'Bearer %s' % os.environ['SENTRY_TOKEN']})
 

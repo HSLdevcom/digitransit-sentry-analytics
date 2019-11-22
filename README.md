@@ -29,6 +29,7 @@ under reports directory.
   * USER_NAME - optional, username for nginx basic authentication
   * USER_PASS - optional, password for nginx basic authentication
   * SLACK_WEBHOOK_URL - optional, URL for a Slack webhook
+  * ENTRIES - how many error events are fetched (gets rounded to upper hundred)
 
 This project contains a Dockerfile that builds a container that has a CRON-like shell script for running
 zero_routing.py script. Additionally, nginx is running on the background and from container port 8080,
