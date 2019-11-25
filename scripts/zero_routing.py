@@ -214,6 +214,7 @@ for e in events:
 
             if not point_in_polygon:
                 fromto_faraway += 1
+                known_error = True
 
         utm_from = utm.from_latlon(e['from'][0], e['from'][1], 35)
         utm_to = utm.from_latlon(e['to'][0], e['to'][1], 35)
