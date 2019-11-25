@@ -65,36 +65,13 @@ def clusterEndpoints(orig_endpoints, name_prefix, eps=2500, min_samples=2, retur
 
     endpoints = []
 
-    router_name = name_prefix.split('_')[0]
-    with open('../data/%s.geojson' % router_name) as f:
-        area_geojson = json.load(f)['features']
-
-    polygons = GeometryCollection([shape(feature["geometry"]).buffer(0) for feature in area_geojson])
-
     if return_outliers:
         for o in outliers:
             if np.isnan(o[0]):
                 continue
             try:
                 lat, lon = utm.to_latlon(o[0], o[1], 35, 'N')
-                point = Point(lon, lat)
-
-                point_in_polygon = False
-                for polygon in polygons:
-                    if polygon.geom_type == 'Polygon':
-                        if polygon.contains(point):
-                            endpoints.append({'name': '%s_outlier_%d' %  (name_prefix, len(endpoints)), 'lon': lon, 'lat': lat,'hits':o[2]})
-                            point_in_polygon = True
-                            break
-                    else:
-                        for single_polygon in polygon:
-                            if single_polygon.contains(point):
-                                endpoints.append({'name': '%s_outlier_%d' %  (name_prefix, len(endpoints)), 'lon': lon, 'lat': lat,'hits':o[2]})
-                                point_in_polygon = True
-                                break
-
-                if not point_in_polygon:
-                    invalid_coordinates += 1
+                endpoints.append({'name': '%s_outlier_%d' %  (name_prefix, len(endpoints)), 'lon': lon, 'lat': lat,'hits':o[2]})
             except utm.error.OutOfRangeError:
                 invalid_coordinates += 1
 
@@ -107,24 +84,7 @@ def clusterEndpoints(orig_endpoints, name_prefix, eps=2500, min_samples=2, retur
             continue
         try:
             lat, lon = utm.to_latlon(cp[0], cp[1], 35, 'N')
-            point = Point(lon, lat)
-
-            point_in_polygon = False
-            for polygon in polygons:
-                if polygon.geom_type == 'Polygon':
-                    if polygon.contains(point):
-                        endpoints.append({'name': '%s_cluster_%d' % (name_prefix, len(endpoints)), 'lon': lon, 'lat': lat,'hits':hitsum})
-                        point_in_polygon = True
-                        break
-                else:
-                    for single_polygon in polygon:
-                        if single_polygon.contains(point):
-                            endpoints.append({'name': '%s_cluster_%d' % (name_prefix, len(endpoints)), 'lon': lon, 'lat': lat,'hits':hitsum})
-                            point_in_polygon = True
-                            break
-
-            if not point_in_polygon:
-                invalid_coordinates += 1
+            endpoints.append({'name': '%s_cluster_%d' % (name_prefix, len(endpoints)), 'lon': lon, 'lat': lat,'hits':hitsum})
         except utm.error.OutOfRangeError:
                 invalid_coordinates += 1
 
@@ -203,6 +163,7 @@ of.write('<table border="1" id="datatable">')
 of.write('<thead><tr><th>router</th><th>time</th><th>created</th><th>from</th><th>to</th><th>configuration index</th><th>link</th></tr></thead>\n<tbody>')
 i = 0
 fromto_closeby = 0
+fromto_faraway = 0
 too_old_time = 0
 fromto_null = 0
 ticket_restrictions = 0
@@ -218,6 +179,14 @@ waltti_destinations = {}
 finland_origins = {}
 finland_destinations = {}
 
+polygons = {}
+
+routers = ['finland', 'waltti', 'hsl']
+
+for router in routers:
+    with open('../data/%s.geojson' % router) as f:
+        polygons[router] = GeometryCollection([shape(feature["geometry"]).buffer(0) for feature in json.load(f)['features']])
+
 for e in events:
 
     known_error = False
@@ -227,6 +196,25 @@ for e in events:
         known_error = True
 
     if not known_error:
+        from_point = Point(e['from'][0], e['from'][1])
+        to_point = Point(e['to'][0], e['to'][1])
+
+        if e['router'] in routers:
+            point_in_polygon = False
+            for polygon in polygons[e['router']]:
+                if polygon.geom_type == 'Polygon':
+                    if polygon.contains(from_point) or polygon.contains(to_point):
+                        point_in_polygon = True
+                        break
+                else:
+                    for single_polygon in polygon:
+                        if single_polygon.contains(from_point) or single_polygon.contains(to_point):
+                            point_in_polygon = True
+                            break
+
+            if not point_in_polygon:
+                fromto_faraway += 1
+
         utm_from = utm.from_latlon(e['from'][0], e['from'][1], 35)
         utm_to = utm.from_latlon(e['to'][0], e['to'][1], 35)
         # Filter out errors where from and to differ by at most by roughly 30 meters
@@ -339,9 +327,9 @@ of.write('<h2>Issue types</h2>')
 of.write('<table border="1">')
 of.write('<thead><tr><th>issue type</th><th>count</th></thead>')
 of.write('<tbody>')
-of.write('<tr><td>From or to is null</td><td>%d</td></tr>' %fromto_null)
+of.write('<tr><td>From or to has invalid coordinates</td><td>%d</td></tr>' %(fromto_null + combined_invalid_coordinates))
 of.write('<tr><td>From and to are really next to each other</td><td>%d</td></tr>' %fromto_closeby)
-of.write('<tr><td>Coordinates are outside of router\'s area</td><td>%d</td></tr>' %combined_invalid_coordinates)
+of.write('<tr><td>Coordinates are outside of router\'s area</td><td>%d</td></tr>' %fromto_faraway)
 of.write('<tr><td>Search time is too much in the past</td><td>%d</td></tr>' %too_old_time)
 of.write('<tr><td>Ticket type limitations</td><td>%d</td></tr>' %ticket_restrictions)
 of.write('<tr><td>Traverse mode limitations</td><td>%d</td></tr>' %limited_modes)
