@@ -196,8 +196,8 @@ for e in events:
         known_error = True
 
     if not known_error:
-        from_point = Point(e['from'][0], e['from'][1])
-        to_point = Point(e['to'][0], e['to'][1])
+        from_point = Point(e['from'][1], e['from'][0])
+        to_point = Point(e['to'][1], e['to'][0])
 
         if e['router'] in routers:
             point_in_polygon = False
