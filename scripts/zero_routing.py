@@ -200,19 +200,22 @@ for e in events:
         to_point = Point(e['to'][1], e['to'][0])
 
         if e['router'] in routers:
-            point_in_polygon = False
+            from_in_polygon = False
+            to_in_polygon = False
             for polygon in polygons[e['router']]:
                 if polygon.geom_type == 'Polygon':
-                    if polygon.contains(from_point) or polygon.contains(to_point):
-                        point_in_polygon = True
-                        break
+                    if polygon.contains(from_point):
+                        from_in_polygon = True
+                    if  polygon.contains(to_point):
+                        to_in_polygon = True
                 else:
                     for single_polygon in polygon:
-                        if single_polygon.contains(from_point) or single_polygon.contains(to_point):
-                            point_in_polygon = True
-                            break
+                        if single_polygon.contains(from_point):
+                            from_in_polygon = True
+                        if single_polygon.contains(to_point):
+                            to_in_polygon = True
 
-            if not point_in_polygon:
+            if not from_in_polygon or not to_in_polygon:
                 fromto_faraway += 1
                 known_error = True
 
