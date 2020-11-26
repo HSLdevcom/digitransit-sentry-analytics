@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build docker image from master and push it
-        run: ./scripts/build_and_push_master.sh
+        run: ${{ github.action_path }}/scripts/build_and_push_master.sh
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_AUTH: ${{ secrets.DOCKER_AUTH }}

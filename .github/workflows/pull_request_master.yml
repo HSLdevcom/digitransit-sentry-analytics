@@ -8,4 +8,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Build push latest image as prod
-        run: ./scripts/build_pull_request.sh
+        run: ${{ github.action_path }}/scripts/build_pull_request.sh
