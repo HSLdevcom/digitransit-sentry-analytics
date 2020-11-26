@@ -10,4 +10,4 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build push latest image as prod
-        run: ./scripts/build_pull_request.sh
+        run: ./.github/workflows/scripts/build_pull_request.sh
