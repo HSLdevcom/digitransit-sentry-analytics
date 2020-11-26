@@ -4,7 +4,7 @@ on:
     types:
       - published
 jobs:
-  deploy-dev:
+  prod-push:
     if: "!github.event.release.prerelease"
     runs-on: ubuntu-latest
     steps:
