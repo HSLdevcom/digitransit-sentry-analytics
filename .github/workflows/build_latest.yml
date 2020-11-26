@@ -7,8 +7,10 @@ jobs:
   deploy-dev:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v1
       - name: Build docker image from master and push it
-        run: ${{ github.action_path }}/scripts/build_and_push_master.sh
+        run: ./scripts/build_and_push_master.sh
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_AUTH: ${{ secrets.DOCKER_AUTH }}

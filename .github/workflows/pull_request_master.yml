@@ -7,5 +7,7 @@ jobs:
   deploy-dev:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v1
       - name: Build push latest image as prod
-        run: ${{ github.action_path }}/scripts/build_pull_request.sh
+        run: ./scripts/build_pull_request.sh
