@@ -1,6 +1,6 @@
 # digitransit-sentry-analytics
 
-![Build](https://github.com/hsldevcom/digitransit-sentry-analytics/workflows/.github/workflows/build_latest.yml/badge.svg)
+![Build](https://github.com/hsldevcom/digitransit-sentry-analytics/workflows/Process%20master%20push/badge.svg)
 
 Sentry issue filtering and processing. Python scripts are designed to be run on python 3.
 
