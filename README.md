@@ -1,6 +1,6 @@
 # digitransit-sentry-analytics
 
-[![Build](https://api.travis-ci.org/HSLdevcom/digitransit-sentry-analytics.svg?branch=master)](https://travis-ci.org/HSLdevcom/digitransit-sentry-analytics)
+![Build](https://github.com/hsldevcom/digitransit-sentry-analytics/workflows/.github/workflows/build_latest.yml/badge.svg)
 
 Sentry issue filtering and processing. Python scripts are designed to be run on python 3.
 

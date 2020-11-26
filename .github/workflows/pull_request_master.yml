@@ -1,0 +1,11 @@
+name: Build docker image from pull request
+on:
+  pull_request:
+    branches:
+      - master
+jobs:
+  deploy-dev:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build push latest image as prod
+        run: ./scripts/build_pull_request.sh
