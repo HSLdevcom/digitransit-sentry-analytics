@@ -5,6 +5,7 @@ on:
       - published
 jobs:
   deploy-dev:
+    if: "!github.event.release.prerelease"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
