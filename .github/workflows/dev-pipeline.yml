@@ -7,7 +7,7 @@ on:
     branches:
       - master
 jobs:
-  master-push:
+  docker-push:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
