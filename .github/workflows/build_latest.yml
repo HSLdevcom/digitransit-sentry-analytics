@@ -12,10 +12,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: check github event
-        run: echo ${{ github.event.pull_request }}
       - name: Build docker image from master and push it
-        if: ${{ github.event.pull_request }} == null
+        if: github.ref == 'refs/heads/master'
         run: ./.github/workflows/scripts/build_and_push_master.sh
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
